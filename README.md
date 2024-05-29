@@ -27,7 +27,7 @@ Exemplo de Comando
 Dependendo do tipo de job selecionado, o workflow executará um dos seguintes comandos:
 
 SSH: Executará um comando remoto via SSH.
-SFTP: Transferirá um arquivo via SFTP.
+SQL: Transferirá um arquivo via SQL.
 SCP: Copiará um arquivo via SCP.
 SSH
 yaml
@@ -36,7 +36,7 @@ steps:
   - name: Execute SSH Command
     run: |
       ssh -i ${{ secrets[github.event.inputs.secret_name] }} user@${{ github.event.inputs.url }} "echo ${{ github.event.inputs.message }}"
-SFTP
+SQL
 yaml
 Copy code
 steps:
