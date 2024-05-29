@@ -1,0 +1,63 @@
+# This is a basic workflow to help you get started with Actions
+name: Conditional Job Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Mensagem para o workflow'
+        required: true
+        type: string
+      url:
+        description: 'URL de destino'
+        required: true
+        type: string
+      secret_name:
+        description: 'Nome do Secret'
+        required: true
+        type: string
+      job_type:
+        description: 'Tipo de Job a ser executado (ssh, sql, scp)'
+        required: true
+        type: choice
+        options:
+          - ssh
+          - sql
+          - scp
+
+jobs:
+  ssh-job:
+    if: ${{ github.event.inputs.job_type == 'ssh' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Execute SSH Command
+        run: |
+          ssh -i ${{ secrets[github.event.inputs.secret_name] }} user@${{ github.event.inputs.url }} "echo ${{ github.event.inputs.message }}"
+
+  sftp-job:
+    if: ${{ github.event.inputs.job_type == 'sql' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Execute SQL Command
+        run: |
+          sftp -i ${{ secrets[github.event.inputs.secret_name] }} user@${{ github.event.inputs.url }} <<EOF
+          put somefile.txt
+          bye
+          EOF
+
+  scp-job:
+    if: ${{ github.event.inputs.job_type == 'scp' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Execute SCP Command
+        run: |
+          scp -i ${{ secrets[github.event.inputs.secret_name] }} somefile.txt user@${{ github.event.inputs.url }}:~
